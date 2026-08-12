@@ -15,6 +15,12 @@
   --shippy-blue: #3498db;
   --shippy-blue-dark: #2980b9;
 
+  /* Feature icons (inline SVG in docs/index.md). The ink flips with the theme, the same
+     way the logo's white hull sits on its navy disc; the orange accent stays put. */
+  --shippy-icon-ink: var(--shippy-navy);
+  --shippy-icon-wave: var(--shippy-blue-dark);
+  --shippy-icon-chip: rgba(26, 35, 50, 0.06);
+
   /* Brand ramp. -1 is used for text/links, so it must clear contrast on the page background. */
   --vp-c-brand-1: var(--shippy-orange-dark);
   --vp-c-brand-2: #9a5000;
@@ -60,6 +66,10 @@
   --vp-c-brand-2: var(--shippy-orange);
   --vp-c-brand-3: var(--shippy-orange);
   --vp-c-brand-soft: rgba(255, 135, 0, 0.18);
+
+  --shippy-icon-ink: #eceff1;
+  --shippy-icon-wave: var(--shippy-blue);
+  --shippy-icon-chip: rgba(236, 239, 241, 0.08);
 }
 
 @media (min-width: 640px) {
@@ -115,7 +125,14 @@
   overflow-x: auto;
 }
 
-/* Feature cards: nudge the icon towards the brand. */
+/* Feature cards: the icons carry the orange themselves, so the chip behind them stays a
+   neutral navy tint — an orange chip would flatten the accent inside the icon. */
 .VPFeature .icon {
-  background-color: var(--vp-c-brand-soft);
+  background-color: var(--shippy-icon-chip);
+}
+
+.VPFeature .icon svg {
+  display: block;
+  width: 28px;
+  height: 28px;
 }

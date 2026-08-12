@@ -20,32 +20,69 @@ hero:
       link: https://github.com/ochorocho/shippy
 
 features:
-  - icon: ⚓
+  # Icons are inline SVG (VPFeature renders a string icon with v-html), drawn in the
+  # logo's idiom: flat fills, no gradients, ink body with an #FF8700 accent. Colours come
+  # from CSS custom properties so they invert with the theme — see theme/custom.css.
+  - icon: |
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <rect x="3" y="2.5" width="26" height="6" rx="2" fill="var(--shippy-orange)"/>
+        <rect x="6" y="12" width="20" height="4.5" rx="1.8" fill="var(--shippy-icon-ink)"/>
+        <rect x="8.5" y="19" width="15" height="4.5" rx="1.8" fill="var(--shippy-icon-ink)" opacity="0.5"/>
+        <path d="M4 29q3.5-2.6 7 0t7 0 7 0" fill="none" stroke="var(--shippy-icon-wave)" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
     title: Zero-downtime releases
     details: Files are synced into a fresh release directory while the old one keeps serving. Going live is one atomic symlink swap.
     link: /guide/deployment-process
     linkText: How a deploy runs
-  - icon: ↩️
+  - icon: |
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M16 6.5A9.5 9.5 0 1 1 6.5 16" fill="none" stroke="var(--shippy-icon-ink)" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M17.6 1.2v10.6L9 6.5Z" fill="var(--shippy-orange)"/>
+      </svg>
     title: Rollback in seconds
     details: The last N releases stay on disk. Pick one from an interactive list, or step back with a single offset flag.
     link: /reference/commands#rollback
     linkText: rollback reference
-  - icon: 🔗
+  - icon: |
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <rect x="3.5" y="4" width="11" height="17" rx="2.2" fill="var(--shippy-icon-ink)"/>
+        <rect x="17.5" y="4" width="11" height="17" rx="2.2" fill="var(--shippy-icon-ink)" opacity="0.45"/>
+        <rect x="2" y="23" width="28" height="6" rx="2.2" fill="var(--shippy-orange)"/>
+      </svg>
     title: Shared files survive
     details: Uploads, logs, sessions and .env are symlinked from shared/ into every release, so nothing is lost between deployments.
     link: /guide/configuration#shared-files-directories
     linkText: Shared paths
-  - icon: 📦
+  - icon: |
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M16 3l12 6.5-12 6.5L4 9.5Z" fill="var(--shippy-orange)"/>
+        <path d="M4 9.5l12 6.5v13L4 22.5Z" fill="var(--shippy-icon-ink)"/>
+        <path d="M28 9.5v13l-12 6.5V16Z" fill="var(--shippy-icon-ink)" opacity="0.55"/>
+      </svg>
     title: One static binary
     details: Written in Go. Nothing to install on the server beyond SSH access, and nothing added to your composer.json.
     link: /guide/installation
     linkText: Install it
-  - icon: 🧹
+  - icon: |
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M3.5 4.5h25L19 16.5h-6Z" fill="var(--shippy-icon-ink)"/>
+        <path d="M13 16.5h6v8.6L13 28.5Z" fill="var(--shippy-orange)"/>
+        <circle cx="5" cy="22" r="1.7" fill="var(--shippy-icon-ink)" opacity="0.45"/>
+        <circle cx="27.5" cy="20.5" r="1.7" fill="var(--shippy-icon-ink)" opacity="0.45"/>
+      </svg>
     title: Knows what to skip
     details: Respects .gitignore — including nested ones — plus your own exclude and include patterns, with gitignore-style syntax.
     link: /guide/configuration#exclude-and-include-patterns
     linkText: Patterns
-  - icon: 🧡
+  # The logo's own ship, scaled from images/logo.svg
+  - icon: |
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M17 4v13h8.5Z" fill="var(--shippy-orange)"/>
+        <path d="M15 6v9H9.5Z" fill="var(--shippy-orange)" opacity="0.8"/>
+        <rect x="15.3" y="3.4" width="1.4" height="14.4" rx="0.7" fill="var(--shippy-icon-ink)"/>
+        <path d="M6 19h20l-2.5 6h-15Z" fill="var(--shippy-icon-ink)"/>
+        <path d="M3 28.5q3.5-2.6 7 0t7 0 7 0" fill="none" stroke="var(--shippy-icon-wave)" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
     title: TYPO3 out of the box
     details: shippy init writes a config that already knows var/log/, public/fileadmin/ and the TYPO3 console commands.
     link: /guide/quick-start
