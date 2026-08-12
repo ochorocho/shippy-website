@@ -18,7 +18,6 @@
   /* Feature icons (inline SVG in docs/index.md). The ink flips with the theme, the same
      way the logo's white hull sits on its navy disc; the orange accent stays put. */
   --shippy-icon-ink: var(--shippy-navy);
-  --shippy-icon-wave: var(--shippy-blue-dark);
   --shippy-icon-chip: rgba(26, 35, 50, 0.06);
 
   /* Brand ramp. -1 is used for text/links, so it must clear contrast on the page background. */
@@ -68,7 +67,6 @@
   --vp-c-brand-soft: rgba(255, 135, 0, 0.18);
 
   --shippy-icon-ink: #eceff1;
-  --shippy-icon-wave: var(--shippy-blue);
   --shippy-icon-chip: rgba(236, 239, 241, 0.08);
 }
 

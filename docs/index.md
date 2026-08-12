@@ -25,10 +25,8 @@ features:
   # from CSS custom properties so they invert with the theme — see theme/custom.css.
   - icon: |
       <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-        <rect x="3" y="2.5" width="26" height="6" rx="2" fill="var(--shippy-orange)"/>
-        <rect x="6" y="12" width="20" height="4.5" rx="1.8" fill="var(--shippy-icon-ink)"/>
-        <rect x="8.5" y="19" width="15" height="4.5" rx="1.8" fill="var(--shippy-icon-ink)" opacity="0.5"/>
-        <path d="M4 29q3.5-2.6 7 0t7 0 7 0" fill="none" stroke="var(--shippy-icon-wave)" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="16" cy="16" r="13" fill="var(--shippy-icon-ink)"/>
+        <path d="M16 7.8V16h5.6" fill="none" stroke="var(--shippy-orange)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     title: Zero-downtime releases
     details: Files are synced into a fresh release directory while the old one keeps serving. Going live is one atomic symlink swap.
@@ -77,11 +75,10 @@ features:
   # The logo's own ship, scaled from images/logo.svg
   - icon: |
       <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-        <path d="M17 4v13h8.5Z" fill="var(--shippy-orange)"/>
-        <path d="M15 6v9H9.5Z" fill="var(--shippy-orange)" opacity="0.8"/>
-        <rect x="15.3" y="3.4" width="1.4" height="14.4" rx="0.7" fill="var(--shippy-icon-ink)"/>
-        <path d="M6 19h20l-2.5 6h-15Z" fill="var(--shippy-icon-ink)"/>
-        <path d="M3 28.5q3.5-2.6 7 0t7 0 7 0" fill="none" stroke="var(--shippy-icon-wave)" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M17 5v13.5h9Z" fill="var(--shippy-orange)"/>
+        <path d="M15 7.2v9.3H9Z" fill="var(--shippy-orange)" opacity="0.8"/>
+        <rect x="15.3" y="4.4" width="1.4" height="14.6" rx="0.7" fill="var(--shippy-icon-ink)"/>
+        <path d="M4.5 21h23l-2.9 6.6h-17.2Z" fill="var(--shippy-icon-ink)"/>
       </svg>
     title: TYPO3 out of the box
     details: shippy init writes a config that already knows var/log/, public/fileadmin/ and the TYPO3 console commands.
