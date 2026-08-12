@@ -72,13 +72,16 @@ features:
     details: Respects .gitignore — including nested ones — plus your own exclude and include patterns, with gitignore-style syntax.
     link: /guide/configuration#exclude-and-include-patterns
     linkText: Patterns
-  # The logo's own ship, scaled from images/logo.svg
+  # The TYPO3 logo, a trademark of the TYPO3 Association, used here to identify the CMS.
+  # Path data and #FF8700 are verbatim from typo3/sysext/backend/Resources/Public/Images/
+  # typo3_logo_orange.svg in TYPO3/typo3; the transform only centres and uniformly scales
+  # it (source viewBox 43.201 42.122 83.098 84.172, centre 84.75/84.208) so it carries the
+  # same optical weight as the drawn icons beside it. The mark itself is not altered.
   - icon: |
       <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-        <path d="M17 5v13.5h9Z" fill="var(--shippy-orange)"/>
-        <path d="M15 7.2v9.3H9Z" fill="var(--shippy-orange)" opacity="0.8"/>
-        <rect x="15.3" y="4.4" width="1.4" height="14.6" rx="0.7" fill="var(--shippy-icon-ink)"/>
-        <path d="M4.5 21h23l-2.9 6.6h-17.2Z" fill="var(--shippy-icon-ink)"/>
+        <g transform="translate(16 16) scale(0.303) translate(-84.75 -84.208)">
+          <path fill="#FF8700" d="M106.074 100.128c-1.247.368-2.242.506-3.549.506-10.689 0-26.389-37.359-26.389-49.793 0-4.577 1.083-6.104 2.613-7.415-13.084 1.527-28.784 6.329-33.806 12.433-1.085 1.529-1.743 3.926-1.743 6.98 0 19.41 20.718 63.455 35.332 63.455 6.765.001 18.164-11.112 27.542-26.166M99.25 42.122c13.52 0 27.049 2.18 27.049 9.812 0 15.483-9.819 34.246-14.832 34.246-8.942 0-20.065-24.867-20.065-37.301.001-5.67 2.181-6.757 7.848-6.757"/>
+        </g>
       </svg>
     title: TYPO3 out of the box
     details: shippy init writes a config that already knows var/log/, public/fileadmin/ and the TYPO3 console commands.
