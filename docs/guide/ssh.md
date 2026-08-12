@@ -1,6 +1,6 @@
 ---
 title: SSH Connections
-description: SSH key detection, custom ports, timeouts, keepalives, compression and host key verification.
+description: SSH key detection, ssh-agent, custom ports, timeouts, keepalives, compression, multiplexing and host key verification.
 ---
 
 # SSH Connections
@@ -32,6 +32,27 @@ hosts:
 ::: warning
 Always specify the **private key** (e.g. `id_ed25519`), not the public key (e.g. `id_ed25519.pub`).
 :::
+
+### SSH Agent
+
+If `ssh-agent` is running (`SSH_AUTH_SOCK` is set) or, on Windows, Pageant is running, Shippy also
+offers every key the agent holds — in addition to, not instead of, `ssh_key`. The server tries every
+offered key during authentication, so both sources are tried automatically; nothing needs to be
+configured to enable this.
+
+This matters most for passphrase-protected keys: Shippy cannot decrypt a passphrase-protected private
+key file itself, but if the same key is already loaded in your agent (`ssh-add`), it's used from
+there instead, and `ssh_key` can point at that same encrypted file without issue. With an agent
+running, `ssh_key` also becomes fully optional — no default key needs to exist on disk at all.
+
+```yaml
+hosts:
+  production:
+    hostname: example.com
+    remote_user: deploy
+    # No ssh_key needed - authenticates entirely via ssh-agent.
+    # Run `ssh-add ~/.ssh/id_ed25519` beforehand so the agent holds the key.
+```
 
 ## SSH Options
 
@@ -181,6 +202,21 @@ hosts:
 The `port` field is a top-level configuration option for convenience. For other SSH options, use the
 `ssh_options` map.
 :::
+
+## SSH Multiplexing
+
+By default, Shippy opens a fresh SSH connection for each remote operation. Set
+`ssh_multiplexing: true` to reuse a single shared connection (SSH `ControlMaster`) for all operations
+against a host, which noticeably reduces overhead on high-latency links or deployments that run many
+commands:
+
+```yaml
+hosts:
+  production:
+    hostname: example.com
+    remote_user: deploy
+    ssh_multiplexing: true   # Reuse one connection for all operations (default: false)
+```
 
 ## Testing a connection
 

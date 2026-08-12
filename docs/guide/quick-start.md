@@ -30,10 +30,17 @@ Update at minimum:
 - `hostname` — your server's domain or IP
 - `remote_user` — SSH username
 - `ssh_key` — path to your SSH private key
+- `include` — the allowlist of paths to deploy (deny-by-default; adjust to your project layout)
 
 ::: tip
 `ssh_key` is optional. If you leave it out, Shippy looks for `~/.ssh/id_ed25519`, `~/.ssh/id_rsa` and
-`~/.ssh/id_ecdsa` in that order — see [SSH Connections](./ssh).
+`~/.ssh/id_ecdsa` in that order, and any key held by a running `ssh-agent` is offered as well — see
+[SSH Connections](./ssh).
+:::
+
+::: warning `include` is not optional
+Shippy deploys an allowlist: nothing ships unless it is listed under `include:`. Without one,
+`shippy deploy` scans 0 files. See [File Selection](./file-selection).
 :::
 
 A minimal configuration looks like this:
@@ -46,6 +53,13 @@ hosts:
     deploy_path: /var/www/{{name}}
     rsync_src: ./
     ssh_key: ~/.ssh/id_rsa
+    # Deny-by-default: list exactly what should ship
+    include:
+      - public/
+      - vendor/
+      - config/
+      - composer.json
+      - composer.lock
     shared:
       - .env
       - var/log/
@@ -73,6 +87,15 @@ anything touches the server.
 
 ## 4. Deploy to production
 
+Preview first — `--dry-run` resolves the allowlist and command list without connecting to the host,
+so you can check the file count before anything is transferred:
+
+```bash
+shippy deploy production --dry-run
+```
+
+Then ship it:
+
 ```bash
 shippy deploy production
 ```
@@ -93,7 +116,8 @@ Or run `shippy rollback production` with no flags to pick from an interactive li
 
 ## Where to go next
 
-- [Configuration](./configuration) — excludes, shared paths, template and environment variables
-- [SSH Connections](./ssh) — key detection, ports, timeouts, host key checking
+- [File Selection](./file-selection) — building the `include:` allowlist for your project
+- [Configuration](./configuration) — shared paths, locking, template and environment variables
+- [SSH Connections](./ssh) — key detection, agent, ports, timeouts, host key checking
 - [CI/CD](./ci-cd) — deploy from GitHub Actions or GitLab CI
 - [Example Configurations](./examples) — a minimal and an advanced multi-host setup

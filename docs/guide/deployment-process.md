@@ -7,7 +7,8 @@ description: The eight steps Shippy performs on every deploy, and why the site o
 
 When you run `shippy deploy <host>`, the following steps occur:
 
-1. **Scan files** — Walks source directory, respects .gitignore and exclude patterns
+1. **Scan files** — Walks source directory, applies the deny-by-default allowlist (include/exclude
+   patterns)
 2. **Connect to server** — Establishes SSH connection
 3. **Create release** — Creates new timestamped release directory (e.g. `releases/20260109203841`)
 4. **Sync files** — Transfers files to the new release directory
@@ -32,6 +33,22 @@ points at a partially written release.
 
 That also means a failure during steps 1–6 leaves production untouched: the broken release directory
 is simply never activated.
+
+## Previewing a deployment
+
+`--dry-run` runs the scan and resolves the command list without connecting to the host, so you can
+confirm the allowlist picks up what you expect before anything is transferred:
+
+```bash
+shippy deploy production --dry-run
+```
+
+## One deployment at a time
+
+Shippy takes a lock on the host for the duration of a deploy, so a second deployment cannot start
+while one is running. It is on by default and expires after 15 minutes — see
+[Deployment Locking](./configuration#deployment-locking), and
+[`shippy unlock`](../reference/commands#unlock) if a crashed run leaves a lock behind.
 
 ## Rolling back
 

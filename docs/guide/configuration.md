@@ -1,6 +1,6 @@
 ---
 title: Configuration
-description: Everything .shippy.yaml can express — hosts, excludes, template variables, shared paths and the on-server directory structure.
+description: Everything .shippy.yaml can express — hosts, template variables, shared paths, deployment locking and the on-server directory structure.
 ---
 
 # Configuration
@@ -28,8 +28,8 @@ hosts:
 
     # File management
     shared: <list of shared paths>
-    exclude: <additional exclude patterns>
-    include: <patterns to include despite .gitignore>
+    include: <allowlist - paths to deploy (deny-by-default)>
+    exclude: <carve-outs that win over includes>
 
 commands:
   - name: <command description>
@@ -39,74 +39,32 @@ commands:
 The key under `hosts:` is the name you pass on the command line — `shippy deploy production` uses the
 `hosts.production` entry.
 
-## Exclude and Include Patterns
+Two parts of this file are large enough to have their own pages:
 
-### Exclude Patterns
+- **`include:` / `exclude:`** — Shippy deploys an explicit allowlist and ships nothing you haven't
+  listed. See [File Selection](./file-selection).
+- **`commands:` / `rollback_commands:`** — including per-host scoping and running inside a container.
+  See [Deployment Commands](./deployment-commands).
 
-Shippy automatically respects `.gitignore` patterns **including nested `.gitignore` files in
-subdirectories**. You can add additional exclude patterns in your configuration:
+## Which files get deployed
 
-```yaml
-hosts:
-  production:
-    hostname: example.com
-    remote_user: deploy
-    deploy_path: /var/www/myproject
-    rsync_src: ./
-
-    # Additional exclude patterns (beyond .gitignore)
-    exclude:
-      - "*.log"              # Exclude all .log files
-      - ".env.example"       # Exclude specific file
-      - "tests/"             # Exclude entire directory
-      - "*.md"               # Exclude all markdown files
-      - ".ddev/"             # Exclude DDEV configuration
-      - "node_modules/"      # Exclude node modules (if not in .gitignore)
-```
-
-### Include Patterns
-
-Use `include` to explicitly include files that are excluded by `.gitignore`:
+Nothing ships unless you list it under `include:`; `exclude:` then punches holes in that allowlist,
+and a built-in junk list is carved out on top. This is covered in full on
+[File Selection](./file-selection), including the pattern syntax, the default excludes and how to
+migrate a configuration written for an older version.
 
 ```yaml
 hosts:
   production:
-    hostname: example.com
-    remote_user: deploy
-    deploy_path: /var/www/myproject
-    rsync_src: ./
-
-    # Force include files despite .gitignore
     include:
-      - "public/.htaccess"   # Include .htaccess files
-      - "vendor/"            # Include vendor directory (if gitignored)
-      - ".env.production"    # Include specific environment file
-```
+      - "public/"            # Web root (ships the whole subtree)
+      - "vendor/"            # Composer dependencies
+      - "config/"            # TYPO3 configuration
+      - "composer.json"
+      - "composer.lock"
 
-::: tip
-`include` is what makes a build-artifact deployment work: keep `vendor/` and `public/_assets/` out of
-git, build them in CI, and list them under `include` so they still reach the server.
-:::
-
-### Pattern Syntax
-
-- Patterns use gitignore-style syntax
-- `*` matches any characters except `/`
-- `**` matches any characters including `/`
-- Trailing `/` means directory only
-- No leading `/` means pattern matches at any depth
-- Leading `/` means pattern matches from project root
-
-**Examples:**
-
-```yaml
-exclude:
-  - "*.log"                    # All .log files at any depth
-  - "/build/"                  # build/ directory at root only
-  - "temp/"                    # temp/ directory at any depth
-  - "**/*.test.js"             # All .test.js files anywhere
-  - ".DS_Store"                # macOS metadata files
-  - "Thumbs.db"                # Windows metadata files
+    exclude:
+      - "public/typo3temp/"  # Carve-outs win over includes
 ```
 
 ## Template Variables
@@ -179,6 +137,29 @@ shared:
 Anything that must survive a deployment — user uploads, logs, sessions, the environment file — belongs
 here. Everything else is replaced wholesale with each release.
 
+## Deployment Locking
+
+To prevent two deployments from running against the same host at once, Shippy writes a lock file to
+the remote `deploy_path` at the start of a deploy and removes it when finished. Locking is **enabled
+by default** with a 15-minute timeout, after which a stale lock (e.g. from a crashed deployment) is
+considered expired and automatically overridden.
+
+```yaml
+# Global defaults (can be overridden per host)
+lock_enabled: true    # Enable deployment locking (default: true)
+lock_timeout: 15      # Minutes before a stale lock expires (default: 15)
+
+hosts:
+  production:
+    hostname: example.com
+    remote_user: deploy
+    deploy_path: /var/www/myproject
+    # lock_enabled: false   # Per-host override to disable locking
+```
+
+If a deployment fails and leaves a stale lock behind before the timeout elapses, clear it manually
+with [`shippy unlock`](../reference/commands#unlock).
+
 ## Directory Structure
 
 Shippy creates the following structure on the server (following Deployer/Capistrano conventions):
@@ -207,25 +188,10 @@ half-written release.
 `keep_releases` controls how many entries under `releases/` are retained after a successful deploy —
 it defaults to `5`, and those are exactly the releases you can roll back to.
 
-## Default Excludes
-
-Shippy automatically excludes these patterns (in addition to .gitignore):
-
-- `.git/`
-- `.gitignore`
-- `.shippy.yaml`
-- `.shippy.yaml.example`
-- `node_modules/`
-- `.env.local`
-- `.env.*.local`
-- `var/cache/`
-- `var/log/`
-- `var/transient/`
-- `.DS_Store`
-- `Thumbs.db`
-
 ## Next steps
 
-- [SSH Connections](./ssh) — keys, ports, timeouts and host key verification
+- [File Selection](./file-selection) — the allowlist that decides what ships
+- [Deployment Commands](./deployment-commands) — command scoping and `command_context`
+- [SSH Connections](./ssh) — keys, agent, ports, timeouts and host key verification
 - [Example Configurations](./examples) — complete minimal and advanced files
 - [Configuration Options](../reference/configuration) — every key in one table

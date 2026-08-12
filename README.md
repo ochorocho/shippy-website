@@ -31,6 +31,8 @@ docs/
 │   ├── installation.md
 │   ├── quick-start.md
 │   ├── configuration.md
+│   ├── file-selection.md        # deny-by-default allowlist
+│   ├── deployment-commands.md   # only/except, command_context
 │   ├── ssh.md
 │   ├── deployment-process.md
 │   ├── ci-cd.md

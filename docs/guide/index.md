@@ -17,10 +17,11 @@ deployment turns out to be wrong, `shippy rollback` points that symlink back at 
 
 - **Zero-downtime deployments** with atomic releases
 - **Release management** — keeps last N releases with easy rollback
+- **Deployment locking** — prevents concurrent deployments to the same host
 - **Shared files/directories** — persistent data between releases
 - **Template variables** from composer.json
 - **Pure Go implementation** — single binary, no dependencies
-- **.gitignore support** — respects your gitignore patterns
+- **Deny-by-default file selection** — explicit allowlist, nothing ships unless you include it
 - **SSH-based** deployment with key authentication
 - **Colored output** — clear, beautiful deployment progress
 - **TYPO3 optimized** — sensible defaults for TYPO3 projects
@@ -54,4 +55,5 @@ if you build from source. See [Installation](./installation).
 - [Installation](./installation) — get the binary
 - [Quick Start](./quick-start) — first deployment in four commands
 - [Configuration](./configuration) — everything `.shippy.yaml` can express
+- [File Selection](./file-selection) — the allowlist that decides what ships
 - [Commands](../reference/commands) — full command and flag reference

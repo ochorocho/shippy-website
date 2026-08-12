@@ -68,10 +68,10 @@ features:
         <circle cx="5" cy="22" r="1.7" fill="var(--shippy-icon-ink)" opacity="0.45"/>
         <circle cx="27.5" cy="20.5" r="1.7" fill="var(--shippy-icon-ink)" opacity="0.45"/>
       </svg>
-    title: Knows what to skip
-    details: Respects .gitignore — including nested ones — plus your own exclude and include patterns, with gitignore-style syntax.
-    link: /guide/configuration#exclude-and-include-patterns
-    linkText: Patterns
+    title: Ships only what you list
+    details: Deny-by-default file selection. Nothing leaves your machine unless it is on the include allowlist, so dumps, .env files and build junk cannot slip onto the server.
+    link: /guide/file-selection
+    linkText: File selection
   # The TYPO3 logo, a trademark of the TYPO3 Association, used here to identify the CMS.
   # Path data and #FF8700 are verbatim from typo3/sysext/backend/Resources/Public/Images/
   # typo3_logo_orange.svg in TYPO3/typo3; the transform only centres and uniformly scales
@@ -112,16 +112,17 @@ docker run --rm ghcr.io/ochorocho/shippy:latest shippy --help
 :::
 
 ```bash
-shippy init                 # write .shippy.yaml from your composer.json
-vim .shippy.yaml            # add hostname, remote_user, ssh_key
-shippy config validate      # check syntax, fields and template variables
-shippy deploy production    # ship it
+shippy init                     # write .shippy.yaml from your composer.json
+vim .shippy.yaml                # add hostname, remote_user, ssh_key, include
+shippy config validate          # check syntax, fields and template variables
+shippy deploy production --dry-run   # preview the file list, no connection
+shippy deploy production        # ship it
 ```
 
 ## One file describes the whole deployment
 
-No scripting DSL, no plugins — a host, the paths that must survive, and the commands to run before the
-release goes live.
+No scripting DSL, no plugins — a host, an allowlist of what ships, the paths that must survive, and
+the commands to run before the release goes live.
 
 ```yaml
 hosts:
@@ -132,6 +133,12 @@ hosts:
     rsync_src: ./
     ssh_key: ~/.ssh/id_rsa
     keep_releases: 10                # ten releases to roll back to
+    include:                         # nothing ships unless it is listed here
+      - public/
+      - vendor/
+      - config/
+      - composer.json
+      - composer.lock
     shared:                          # symlinked into every release
       - .env
       - var/log/
@@ -144,6 +151,7 @@ commands:
 
   - name: Database migrations
     run: ./{{config.bin-dir|vendor/bin}}/typo3 upgrade:run
+    only: [production]               # scope a command to specific hosts
 ```
 
 [Full configuration guide →](/guide/configuration)
@@ -172,7 +180,7 @@ again.
 
 ## Eight steps, and the site only moves at step seven
 
-1. **Scan files** — walks the source directory, respecting `.gitignore` and your exclude patterns
+1. **Scan files** — walks the source directory, applying the deny-by-default allowlist
 2. **Connect to server** — establishes the SSH connection
 3. **Create release** — a new timestamped directory, e.g. `releases/20260109203841`
 4. **Sync files** — transfers everything into that release
@@ -181,7 +189,8 @@ again.
 7. **Activate release** — atomically repoints `current`; the site goes live
 8. **Cleanup** — removes old releases, keeps the last N
 
-A failure in steps 1–6 never reaches production: the broken release is simply never activated.
+A failure in steps 1–6 never reaches production: the broken release is simply never activated. A lock
+on the host keeps a second deployment from starting while one is in flight.
 
 [Read the full sequence →](/guide/deployment-process)
 
@@ -227,5 +236,8 @@ deploy:
 - **`shippy gitlab:upload`** — push that archive to the GitLab package registry straight from a
   scheduled pipeline
 - **`shippy rollback -l`** — list every release with its date, git commit and tag before you choose
+- **`shippy config show <host>`** — the fully resolved config for one host, templates expanded and
+  per-host overrides applied
+- **`shippy unlock`** — clear a lock left behind by a crashed deployment
 
 [Command reference →](/reference/commands)

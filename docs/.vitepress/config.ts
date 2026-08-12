@@ -61,6 +61,8 @@ export default defineConfig({
           text: 'Using Shippy',
           items: [
             { text: 'Configuration', link: '/guide/configuration' },
+            { text: 'File Selection', link: '/guide/file-selection' },
+            { text: 'Deployment Commands', link: '/guide/deployment-commands' },
             { text: 'SSH Connections', link: '/guide/ssh' },
             { text: 'Deployment Process', link: '/guide/deployment-process' },
             { text: 'CI/CD', link: '/guide/ci-cd' },
@@ -94,6 +96,8 @@ export default defineConfig({
             { text: 'Installation', link: '/guide/installation' },
             { text: 'Quick Start', link: '/guide/quick-start' },
             { text: 'Configuration', link: '/guide/configuration' },
+            { text: 'File Selection', link: '/guide/file-selection' },
+            { text: 'Deployment Commands', link: '/guide/deployment-commands' },
             { text: 'SSH Connections', link: '/guide/ssh' },
             { text: 'Deployment Process', link: '/guide/deployment-process' },
             { text: 'CI/CD', link: '/guide/ci-cd' },

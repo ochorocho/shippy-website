@@ -23,7 +23,7 @@ shippy/
 │   ├── composer/
 │   │   └── parser.go    # Composer.json parser
 │   ├── rsync/
-│   │   ├── sync.go      # File scanner with gitignore
+│   │   ├── sync.go      # Allowlist file scanner (deny-by-default)
 │   │   └── transfer.go  # File transfer over SSH
 │   ├── ssh/
 │   │   ├── client.go    # SSH client

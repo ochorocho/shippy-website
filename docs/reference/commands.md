@@ -1,6 +1,6 @@
 ---
 title: Commands
-description: Every Shippy command — init, deploy, rollback, backup, gitlab:upload and config validate — with its flags.
+description: Every Shippy command — init, deploy, rollback, backup, unlock, gitlab:upload, config validate/show, env and version — with its flags.
 ---
 
 # Commands
@@ -15,6 +15,12 @@ description: Every Shippy command — init, deploy, rollback, backup, gitlab:upl
 | [`shippy backup <host>`](#backup) | Download a database dump and shared files as a ZIP |
 | [`shippy gitlab:upload <file>`](#upload-to-gitlab) | Push a file to the GitLab package registry |
 | [`shippy config validate`](#validate-configuration) | Check the configuration file |
+| [`shippy config show`](#show-configuration) | Print the resolved configuration |
+| [`shippy unlock <host>`](#unlock) | Force-remove a stale deployment lock |
+| [`shippy env`](#environment) | List the environment variables available to Shippy |
+| [`shippy version`](#version) | Print version, commit, build date and Go version |
+
+[`--config <path>`](#global-options) works on every command.
 
 ## Initialize
 
@@ -43,12 +49,20 @@ Deploy to a target host:
 shippy deploy <hostname>
 ```
 
+Options:
+
+- `--dry-run` — Preview which files and commands would be deployed without connecting to the host
+- `--verbose` or `-v` — Show detailed output for each file
+
 Example:
 
 ```bash
 shippy deploy staging
 shippy deploy production
+shippy deploy production --dry-run   # Preview files and commands, no connection
 ```
+
+When run without a host argument, an interactive host selector is shown.
 
 `<hostname>` is the key under `hosts:` in `.shippy.yaml`, not the server's domain name. The eight
 steps this runs through are described in
@@ -93,6 +107,13 @@ shippy backup <hostname>
 
 The output file is named `backup-<hostname>-<timestamp>.zip` and is written to the configured
 `output:` directory (default: current working directory).
+
+Options:
+
+- `--output` or `-o` — Output directory for the backup ZIP (overrides the configured `output:`)
+- `--skip-database` — Skip the database dump
+- `--skip-shared` — Skip the shared files
+- `--verbose` or `-v` — Show detailed output
 
 Configuration in `.shippy.yaml`:
 
@@ -209,3 +230,72 @@ This command:
 - Checks required fields
 - Tests composer.json template variables
 - Shows processed configuration
+
+It also rejects `only`/`except` entries that name a host not defined under `hosts:`, and annotates
+every command with its resolved scope — see
+[Deployment Commands](../guide/deployment-commands#scoping-a-command-to-specific-hosts).
+
+## Show Configuration
+
+Print the complete resolved configuration with all defaults applied and template variables replaced:
+
+```bash
+shippy config show              # Complete config with resolved templates
+shippy config show production   # Effective config for a single host (globals + per-host overrides)
+shippy config show --raw        # Raw config without resolving template variables
+```
+
+For a single host, the output lists only the commands that actually apply to that host (given each
+command's `only`/`except` filters); skipped commands are shown as comments.
+
+## Unlock
+
+Force-remove a stale deployment lock from a host (see
+[Deployment Locking](../guide/configuration#deployment-locking)):
+
+```bash
+shippy unlock <hostname>
+```
+
+Example:
+
+```bash
+shippy unlock                  # Interactive host selection
+shippy unlock production
+```
+
+::: warning
+Use this only when a deployment failed and left a lock behind. Running it while a deployment is
+genuinely in progress may cause issues. If no active lock exists, the command reports that and exits
+without changes.
+:::
+
+## Environment
+
+Print all environment variables available to Shippy. Useful for debugging configuration that uses
+`${ENV_VAR}` substitution:
+
+```bash
+shippy env
+shippy env | grep DEPLOY
+```
+
+See [Environment Variables](../guide/configuration#environment-variables) for the `${VAR}` syntax.
+
+## Version
+
+Print the version, git commit, build date, and Go version:
+
+```bash
+shippy version
+shippy --version   # or -v
+```
+
+## Global Options
+
+`--config <path>` selects a different configuration file (default: `.shippy.yaml`). It is available
+on every command:
+
+```bash
+shippy --config .shippy.staging.yaml deploy staging
+```
