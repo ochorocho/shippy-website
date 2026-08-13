@@ -9,14 +9,14 @@ Built with [VitePress](https://vitepress.dev/). All content is Markdown under `d
 
 ```bash
 npm install
-npm run docs:dev      # http://localhost:5173/shippy-website/
+npm run docs:dev      # http://localhost:5173/
 ```
 
 ## Build
 
 ```bash
 npm run docs:build    # output: docs/.vitepress/dist
-npm run docs:preview  # serve the build under the /shippy-website/ base
+npm run docs:preview  # serve the build locally
 ```
 
 The build fails on dead internal links, so a green build is also a link check.
@@ -41,7 +41,9 @@ docs/
 ├── reference/                   # lookup tables
 │   ├── commands.md
 │   └── configuration.md
-├── public/logo.svg              # from ochorocho/shippy, images/logo.svg
+├── public/
+│   ├── logo.svg                 # from ochorocho/shippy, images/logo.svg
+│   └── CNAME                    # custom domain: shippy.run
 └── .vitepress/
     ├── config.ts                # nav, sidebar, SEO, search
     └── theme/                   # brand colours from the logo palette
@@ -54,12 +56,15 @@ pages. When that README changes, update the corresponding page here.
 ## Deployment
 
 Pushing to `main` runs `.github/workflows/deploy.yml`, which builds the site and publishes it to
-GitHub Pages at <https://ochorocho.github.io/shippy-website/>.
+GitHub Pages at <https://shippy.run/>.
 
-Enable it once under **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+**Settings → Pages → Build and deployment → Source** must stay on **GitHub Actions**. Changing the
+custom domain in that screen silently resets the source back to *Deploy from a branch*, which
+publishes the repository root through Jekyll and 404s every built asset. Check the source after
+touching the domain.
 
-Serving from a custom domain later means setting `base: '/'` in `docs/.vitepress/config.ts`, updating
-`sitemap.hostname`, and adding `docs/public/CNAME`.
+The domain is pinned in three places that have to agree: `docs/public/CNAME`, and `base` /
+`sitemap.hostname` in `docs/.vitepress/config.ts`.
 
 ## License
 

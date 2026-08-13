@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 
-const base = '/shippy-website/'
-const hostname = 'https://ochorocho.github.io/shippy-website/'
+const base = '/'
+const hostname = 'https://shippy.run/'
 const repo = 'https://github.com/ochorocho/shippy'
 
 export default defineConfig({
