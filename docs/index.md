@@ -58,7 +58,7 @@ features:
         <path d="M28 9.5v13l-12 6.5V16Z" fill="var(--shippy-icon-ink)" opacity="0.55"/>
       </svg>
     title: One static binary
-    details: Written in Go. Nothing to install on the server beyond SSH access, and nothing added to your composer.json.
+    details: Written in Go. The server only needs SSH and rsync, and nothing is added to your composer.json.
     link: /guide/installation
     linkText: Install it
   - icon: |
@@ -106,7 +106,7 @@ go install github.com/ochorocho/shippy@latest
 ```
 
 ```bash [Docker]
-docker run --rm ghcr.io/ochorocho/shippy:latest shippy --help
+docker run --rm ghcr.io/ochorocho/shippy:latest --help
 ```
 
 :::
@@ -183,7 +183,7 @@ again.
 1. **Scan files** — walks the source directory, applying the deny-by-default allowlist
 2. **Connect to server** — establishes the SSH connection
 3. **Create release** — a new timestamped directory, e.g. `releases/20260109203841`
-4. **Sync files** — transfers everything into that release
+4. **Sync files** — an rsync delta transfer: only changed blocks travel, and the release is filled from a persistent cache on the server
 5. **Create symlinks** — links the shared files and directories
 6. **Execute commands** — cache flush, migrations, warmup — inside the new release
 7. **Activate release** — atomically repoints `current`; the site goes live
@@ -218,7 +218,11 @@ jobs:
 ```yaml [GitLab CI]
 # .gitlab-ci.yml
 deploy:
-  image: ochorocho/shippy:latest
+  stage: deploy
+  image:
+    name: ghcr.io/ochorocho/shippy:latest
+    # ENTRYPOINT is "shippy", so it is cleared to run regular shell commands.
+    entrypoint: [""]
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
   script:

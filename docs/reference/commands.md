@@ -52,7 +52,8 @@ shippy deploy <hostname>
 Options:
 
 - `--dry-run` — Preview which files and commands would be deployed without connecting to the host
-- `--verbose` or `-v` — Show detailed output for each file
+- `--verbose` or `-v` — Print every transferred file (and rsync's own diagnostics) instead of the
+  progress bar
 
 Example:
 
@@ -205,7 +206,10 @@ Run as a scheduled GitLab CI pipeline (uses `CI_JOB_TOKEN` automatically):
 # .gitlab-ci.yml
 nightly_backup:
   stage: backup
-  image: ghcr.io/ochorocho/shippy:latest
+  image:
+    name: ghcr.io/ochorocho/shippy:latest
+    # ENTRYPOINT is "shippy", so it is cleared to run regular shell commands.
+    entrypoint: [""]
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
   script:

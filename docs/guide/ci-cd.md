@@ -37,14 +37,21 @@ Use the prebuilt Docker image, which ships shippy on `PATH`:
 ```yaml
 # .gitlab-ci.yml
 deploy:
-  image: ochorocho/shippy:latest
+  stage: deploy
+  image:
+    name: ghcr.io/ochorocho/shippy:latest
+    # ENTRYPOINT is "shippy", so it is cleared to run regular shell commands.
+    entrypoint: [""]
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
   script:
     - shippy deploy production
 ```
 
-The same image is published to GitHub Container Registry as `ghcr.io/ochorocho/shippy:latest`.
+The image's `ENTRYPOINT` is the `shippy` binary itself. GitLab runs the job's `script:` through a
+shell inside the container, so the entrypoint has to be cleared with `entrypoint: [""]`; without it
+the runner's shell is passed to `shippy` as an argument and the job fails immediately. The same image
+is also published to Docker Hub as `ochorocho/shippy:latest`.
 
 ## Keeping secrets out of the repository
 
@@ -73,7 +80,10 @@ GitLab CI the upload authenticates automatically with `CI_JOB_TOKEN`:
 # .gitlab-ci.yml
 nightly_backup:
   stage: backup
-  image: ghcr.io/ochorocho/shippy:latest
+  image:
+    name: ghcr.io/ochorocho/shippy:latest
+    # ENTRYPOINT is "shippy", so it is cleared to run regular shell commands.
+    entrypoint: [""]
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
   script:

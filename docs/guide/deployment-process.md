@@ -10,8 +10,11 @@ When you run `shippy deploy <host>`, the following steps occur:
 1. **Scan files** — Walks source directory, applies the deny-by-default allowlist (include/exclude
    patterns)
 2. **Connect to server** — Establishes SSH connection
-3. **Create release** — Creates new timestamped release directory (e.g. `releases/20260109203841`)
-4. **Sync files** — Transfers files to the new release directory
+3. **Create release** — Creates a new timestamped release directory (e.g. `releases/20260109203841`).
+   If that name is already taken because two deploys landed in the same second, a numeric suffix is
+   appended (`20260109203841.1`), which keeps the lexical order that rollback and cleanup rely on
+4. **Sync files** — Transfers the scanned files to the server with rsync and fills the new release
+   directory from a persistent cache (see [below](#how-files-are-transferred))
 5. **Create symlinks** — Links shared files/directories from `shared/` to the release
 6. **Execute commands** — Runs commands **in the new release directory** (e.g. cache flush,
    migrations)
@@ -33,6 +36,30 @@ points at a partially written release.
 
 That also means a failure during steps 1–6 leaves production untouched: the broken release directory
 is simply never activated.
+
+## How files are transferred
+
+Step 4 is an rsync transfer, driven by an rsync client compiled into the Shippy binary and the
+`rsync` installed on the server. Two things happen:
+
+1. **Push to the cache.** The scanned file list is streamed over the existing SSH connection into
+   `<deploy_path>/.cache/`. This is a real rsync delta: files that are unchanged since the last
+   deploy are skipped natively, changed files only send the blocks that differ, and `--delete`
+   removes anything that has since left your allowlist. A progress bar shows the upload;
+   `--verbose` prints every file instead.
+2. **Promote to the release.** The server's own `rsync` mirrors `.cache/` into the fresh release
+   directory. That is a local copy on the host, so it is fast even for large `vendor/` trees.
+
+Symbolic links inside the project are recreated as links on the server rather than dereferenced, so
+the runtime symlinks Composer and TYPO3 create (for example under `public/_assets/`) keep working.
+
+The cache is what makes the second and every later deploy cheap: only what changed since the previous
+deploy crosses the network. It is safe to delete `.cache/` on the server; the next deploy simply
+uploads everything again.
+
+::: info Requirements on the server
+`rsync` must be installed on the target host. Nothing else is required beyond the SSH account.
+:::
 
 ## Previewing a deployment
 

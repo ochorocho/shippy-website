@@ -188,6 +188,10 @@ half-written release.
 `keep_releases` controls how many entries under `releases/` are retained after a successful deploy —
 it defaults to `5`, and those are exactly the releases you can roll back to.
 
+Shippy also keeps two hidden directories next to these: `.cache/` holds the rsync cache that makes
+repeat deploys fast (see [How files are transferred](./deployment-process#how-files-are-transferred)),
+and `.shippy/` holds the deployment lock. Both can be deleted when no deploy is running.
+
 ## Next steps
 
 - [File Selection](./file-selection) — the allowlist that decides what ships

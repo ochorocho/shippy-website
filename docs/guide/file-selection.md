@@ -64,6 +64,10 @@ automatically; you don't need to list it.
   `include:`; you don't rely on gitignore to deselect.
 - Escape hatch: `include: ["*"]` ships (almost) everything; the built-in junk
   list still protects `.git/` etc.
+- Symbolic links are shipped **as links** and recreated verbatim on the server,
+  not followed. Composer and TYPO3 rely on such links at runtime (e.g.
+  `public/_assets/`), so a link whose target lies outside the allowlist will
+  dangle on the server until its target is included too.
 
 ## Pattern Syntax
 

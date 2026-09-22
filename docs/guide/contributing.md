@@ -12,43 +12,54 @@ Contributions are welcome! Please feel free to submit a Pull Request on
 
 ```
 shippy/
-├── cmd/
-│   ├── root.go          # Root CLI command
-│   ├── config.go        # Config validation command
-│   └── deploy.go        # Deploy command
+├── cmd/                  # One file per CLI command (cobra)
+│   ├── root.go           # Root command, --config, --version
+│   ├── init.go           # shippy init
+│   ├── deploy.go         # shippy deploy
+│   ├── rollback.go       # shippy rollback
+│   ├── backup.go         # shippy backup
+│   ├── gitlab_upload.go  # shippy gitlab:upload
+│   ├── config.go         # shippy config validate / show
+│   ├── unlock.go         # shippy unlock
+│   └── env.go            # shippy env
 ├── internal/
-│   ├── config/
-│   │   ├── config.go    # Configuration parser
-│   │   └── template.go  # Template variable processor
-│   ├── composer/
-│   │   └── parser.go    # Composer.json parser
+│   ├── config/           # YAML parser, template + env substitution, command scoping
+│   ├── composer/         # composer.json parser
 │   ├── rsync/
-│   │   ├── sync.go      # Allowlist file scanner (deny-by-default)
-│   │   └── transfer.go  # File transfer over SSH
-│   ├── ssh/
-│   │   ├── client.go    # SSH client
-│   │   └── executor.go  # Command executor
-│   └── deploy/
-│       ├── deployer.go  # Main deployment orchestrator
-│       └── release.go   # Release management
+│   │   ├── sync.go       # Allowlist file scanner (deny-by-default)
+│   │   └── transfer.go   # rsync push to the remote cache, promote to the release
+│   ├── ssh/              # SSH client, agent, host keys, command executor
+│   ├── deploy/           # Deployment orchestrator and release management
+│   ├── lock/             # Remote deployment lock
+│   ├── backup/           # Database dump + shared files ZIP
+│   ├── upload/           # GitLab package registry upload
+│   └── ui/               # Coloured output, progress bar, release selector
+├── third_party/
+│   └── rsync/            # Vendored gokrazy/rsync client with a --files-from patch
+├── tests/                # bats integration tests and the Docker test target
 ├── Formula/
-│   └── shippy.rb        # Homebrew formula (prebuilt binary, per arch)
+│   └── shippy.rb         # Homebrew formula (prebuilt binary, per arch)
 ├── scripts/
 │   └── update-formula.sh # Bumps formula version + per-arch sha256 for a tag
+├── Dockerfile            # Release image, ENTRYPOINT is shippy
 ├── main.go
 ├── go.mod
 └── README.md
 ```
 
+The rsync client lives in-process: `go.mod` replaces `github.com/gokrazy/rsync` with the vendored copy
+under `third_party/rsync`, so the release binaries stay static and need no rsync on the deploying
+machine. The server side is the host's regular `rsync`.
+
 ## Testing
 
-Build with go 1.24:
+Build with Go 1.26 (see `go.mod`):
 
 ```bash
 go build -o shippy
 ```
 
-Start the test instance:
+Start the test instance (an Apache/PHP container with `sshd` and `rsync`):
 
 ```bash
 cd tests/
