@@ -178,7 +178,7 @@ again.
         └── uploads/
 ```
 
-## Eight steps, and the site only moves at step seven
+## Nine steps, and the site only moves at step seven
 
 1. **Scan files** — walks the source directory, applying the deny-by-default allowlist
 2. **Connect to server** — establishes the SSH connection
@@ -187,7 +187,8 @@ again.
 5. **Create symlinks** — links the shared files and directories
 6. **Execute commands** — cache flush, migrations, warmup — inside the new release
 7. **Activate release** — atomically repoints `current`; the site goes live
-8. **Cleanup** — removes old releases, keeps the last N
+8. **Post-release commands** — opcache flush, leaving maintenance mode — against the now-live `current/`
+9. **Cleanup** — removes old releases, keeps the last N
 
 A failure in steps 1–6 never reaches production: the broken release is simply never activated. A lock
 on the host keeps a second deployment from starting while one is in flight.
