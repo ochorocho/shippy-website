@@ -1,6 +1,6 @@
 ---
 title: Deployment Process
-description: The eight steps Shippy performs on every deploy, and why the site only goes live at step seven.
+description: The nine steps Shippy performs on every deploy, and why the site only goes live at step seven.
 ---
 
 # Deployment Process
@@ -19,12 +19,15 @@ When you run `shippy deploy <host>`, the following steps occur:
 6. **Execute commands** — Runs commands **in the new release directory** (e.g. cache flush,
    migrations)
 7. **Activate release** — Atomically updates `current` symlink to new release (site goes live)
-8. **Cleanup** — Removes old releases, keeps last N
+8. **Post-release commands** — Runs `commands_post_release` against `current/` (e.g. flush opcache,
+   leave maintenance mode). Skipped when none are configured
+9. **Cleanup** — Removes old releases, keeps last N
 
 ::: info Commands run before the release goes live
 Commands execute in the new release directory **before** it goes live. This ensures all preparation
 (cache warming, migrations, etc.) completes successfully before the atomic switchover. The site only
-becomes live when the `current` symlink is updated in step 7.
+becomes live when the `current` symlink is updated in step 7. Anything that has to happen once the
+release is live belongs in [`commands_post_release`](./deployment-commands#post-release-commands).
 :::
 
 ## Why this is zero-downtime
@@ -49,6 +52,11 @@ Step 4 is an rsync transfer, driven by an rsync client compiled into the Shippy 
    `--verbose` prints every file instead.
 2. **Promote to the release.** The server's own `rsync` mirrors `.cache/` into the fresh release
    directory. That is a local copy on the host, so it is fast even for large `vendor/` trees.
+
+Deployed files and directories get normalized modes on the server rather than inheriting the modes
+from your machine or the server's umask. By default files are `0664` and directories `2775`
+(group-writable, setgid), and files that are executable in your source keep their exec bit. See
+[Permissions](./configuration#file-and-directory-permissions).
 
 Symbolic links inside the project are recreated as links on the server rather than dereferenced, so
 the runtime symlinks Composer and TYPO3 create (for example under `public/_assets/`) keep working.
@@ -94,5 +102,5 @@ the [`rollback` reference](../reference/commands#rollback) for all flags.
 ## What Shippy does not do
 
 Shippy deploys files and runs commands. It does not manage your web server, PHP-FPM pools, database
-schema (beyond whatever your own commands do), or DNS. That is deliberate: the same eight steps
+schema (beyond whatever your own commands do), or DNS. That is deliberate: the same nine steps
 behave identically on any host you can reach over SSH.

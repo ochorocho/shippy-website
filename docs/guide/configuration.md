@@ -25,6 +25,8 @@ hosts:
     deploy_path: <absolute path on server>
     rsync_src: <local source directory>
     keep_releases: <number of releases to keep, default: 5>
+    file_mode: <octal mode for deployed files, default: "0664">
+    dir_mode: <octal mode for deployed directories, default: "2775">
 
     # File management
     shared: <list of shared paths>
@@ -32,6 +34,10 @@ hosts:
     exclude: <carve-outs that win over includes>
 
 commands:
+  - name: <command description>
+    run: <command to execute>
+
+commands_post_release:   # optional, run after the release is live
   - name: <command description>
     run: <command to execute>
 ```
@@ -43,7 +49,7 @@ Two parts of this file are large enough to have their own pages:
 
 - **`include:` / `exclude:`** — Shippy deploys an explicit allowlist and ships nothing you haven't
   listed. See [File Selection](./file-selection).
-- **`commands:` / `rollback_commands:`** — including per-host scoping and running inside a container.
+- **`commands:` / `commands_post_release:` / `rollback_commands:`** — including per-host scoping and running inside a container.
   See [Deployment Commands](./deployment-commands).
 
 ## Which files get deployed
@@ -191,6 +197,32 @@ it defaults to `5`, and those are exactly the releases you can roll back to.
 Shippy also keeps two hidden directories next to these: `.cache/` holds the rsync cache that makes
 repeat deploys fast (see [How files are transferred](./deployment-process#how-files-are-transferred)),
 and `.shippy/` holds the deployment lock. Both can be deleted when no deploy is running.
+
+## File and directory permissions
+
+Shippy sets the modes of deployed files and directories explicitly instead of copying them from your
+machine or leaving them to the server's umask:
+
+```yaml
+hosts:
+  production:
+    file_mode: "0664"   # default
+    dir_mode: "2775"    # default
+```
+
+- Files get `file_mode`, directories get `dir_mode`. Files that are executable in your source keep
+  their exec bit.
+- The defaults are group-writable, so the web-server group (e.g. `www-data`) can write to the
+  deployed tree.
+- Quote the values. Unquoted, YAML would not read `0664` as octal.
+- Both can be set globally or per host; the per-host value wins. `shippy config validate` rejects
+  anything that is not a valid octal mode.
+
+::: info Setgid comes from the deploy tree
+`dir_mode`'s leading `2` is the setgid bit, but the group itself is inherited from the filesystem.
+For new files to land in the right group, make your `deploy_path` setgid and owned by that group
+(for example `chgrp www-data` and `chmod 2775`).
+:::
 
 ## Next steps
 

@@ -65,7 +65,7 @@ shippy deploy production --dry-run   # Preview files and commands, no connection
 
 When run without a host argument, an interactive host selector is shown.
 
-`<hostname>` is the key under `hosts:` in `.shippy.yaml`, not the server's domain name. The eight
+`<hostname>` is the key under `hosts:` in `.shippy.yaml`, not the server's domain name. The nine
 steps this runs through are described in
 [Deployment Process](../guide/deployment-process).
 

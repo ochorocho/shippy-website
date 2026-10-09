@@ -22,6 +22,27 @@ Because they run before the `current` symlink moves, a failing command means the
 live — see [Deployment Process](./deployment-process).
 :::
 
+## Post-release commands
+
+`commands_post_release` run **after** the atomic switchover, against the `current/` path, which now
+points at the live release. Use them for actions that must happen once the release is live, such as
+flushing PHP's opcache or leaving maintenance mode:
+
+```yaml
+commands_post_release:
+  - name: Flush PHP opcache
+    run: ./vendor/bin/typo3 cache:flush
+```
+
+They have no defaults — nothing runs unless you configure it — and they support the same
+[`only` / `except` scoping](#scoping-a-command-to-specific-hosts) and
+[`command_context`](#running-commands-inside-a-container) as `commands`.
+
+::: warning
+The release is already live when these run. A failing post-release command fails the deploy, but it
+does not roll the release back.
+:::
+
 ## Scoping a command to specific hosts
 
 By default a command runs for every host in `hosts:`. Use `only` / `except` (GitLab-CI style) to
